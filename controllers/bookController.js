@@ -51,7 +51,7 @@ exports.book_detail = function (req, res, next) {
       book: function (callback) {
         Book.findById(req.params.id)
           .populate("author")
-          .populate("genre")
+          .populate("genreinstances")
           .exec(callback);
       },
       book_instance: function (callback) {
