@@ -118,8 +118,41 @@ exports.genre_delete_get = function (req, res, next) {
 };
 
 // Handle Genre delete on POST.
-exports.genre_delete_post = function (req, res) {
-  res.send("NOT IMPLEMENTED: Genre delete POST");
+exports.genre_delete_post = function (req, res, next) {
+  // You need to use async.parallel() again to get genre and books
+  async.parallel(
+    {
+      genre: function (callback) {
+        Genre.findById(req.params.id).exec(callback);
+      },
+      books: function (callback) {
+        Book.find({ genre: req.params.id }).exec(callback);
+      },
+    },
+    function (err, results) {
+      if (err) {
+        next(err);
+      }
+
+      if (results.books.length > 0) {
+        res.render("genre_delete", {
+          genre: results.genre,
+          books: results.books,
+        });
+      }
+
+      Genre.findByIdAndRemove(req.body.genreid, function (err) {
+        if (err) {
+          next(err);
+        }
+
+        res.redirect("/catalog/genres");
+      });
+    }
+  );
+  // If there was an error next(error)
+  // If the books.length > 0 then return the same thing as res.render(genre_delete, ...)
+  // Otherwise Genre.findByIdAndRemove(req.body.genreid, callback function with err do error case and then redirect to all genres)
 };
 
 // Display Genre update form on GET.
