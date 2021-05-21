@@ -126,7 +126,6 @@ exports.genre_delete_get = function (req, res, next) {
 
 // Handle Genre delete on POST.
 exports.genre_delete_post = function (req, res, next) {
-  // You need to use async.parallel() again to get genre and books
   async.parallel(
     {
       genre: function (callback) {
@@ -157,9 +156,6 @@ exports.genre_delete_post = function (req, res, next) {
       });
     }
   );
-  // If there was an error next(error)
-  // If the books.length > 0 then return the same thing as res.render(genre_delete, ...)
-  // Otherwise Genre.findByIdAndRemove(req.body.genreid, callback function with err do error case and then redirect to all genres)
 };
 
 // Display Genre update form on GET.

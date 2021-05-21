@@ -182,8 +182,22 @@ exports.author_delete_post = function (req, res, next) {
 };
 
 // Display Author update form on GET.
-exports.author_update_get = function (req, res) {
-  res.send("NOT IMPLEMENTED: Author update GET");
+exports.author_update_get = function (req, res, next) {
+  Author.findById(req.params.id).exec(function (err, author) {
+    if (err) {
+      next(err);
+    }
+
+    if (author === null) {
+      res.redirect("/catalog/authors");
+      return;
+    }
+
+    res.render("author_form", {
+      title: "Update Author",
+      author: author,
+    });
+  });
 };
 
 // Handle Author update on POST.
