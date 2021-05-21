@@ -159,11 +159,67 @@ exports.genre_delete_post = function (req, res, next) {
 };
 
 // Display Genre update form on GET.
-exports.genre_update_get = function (req, res) {
-  res.send("NOT IMPLEMENTED: Genre update GET");
+exports.genre_update_get = function (req, res, next) {
+  // Get existing genre
+  Genre.findById(req.params.id).exec(function (err, genre) {
+    // If error pass to middleware
+    if (err) {
+      return next(err);
+    }
+
+    // Load form with genre data
+    res.render("genre_form", { title: "Update Genre", genre: genre });
+    return;
+  });
 };
 
 // Handle Genre update on POST.
-exports.genre_update_post = function (req, res) {
-  res.send("NOT IMPLEMENTED: Genre update POST");
-};
+exports.genre_update_post = [
+  body("name")
+    .trim()
+    .isLength({ min: 1 })
+    .escape()
+    .withMessage("You need to enter a name for Genre")
+    .isAlphanumeric()
+    .withMessage("Your name must be alphanumeric"),
+
+  function (req, res, next) {
+    const errors = validationResult(req);
+
+    const genre = new Genre({
+      name: req.body.name,
+      _id: req.params.id,
+    });
+
+    if (!errors.isEmpty()) {
+      res.render("genre_form", {
+        title: "Update Genre",
+        genre: genre,
+        errors: errors.array(),
+      });
+      return;
+    }
+
+    Genre.findByIdAndUpdate(req.params.id, genre, {}, function (err, thegenre) {
+      if (err) {
+        return next(err);
+      }
+      res.redirect("/catalog/genres");
+    });
+  },
+  /* 
+  Logic
+  - Sanitise the data (e.g. body("name").trim().isLength({min: 1}).escape().withMessage("You need to enter a name for the genre"))
+  - In the next item in the array do a fresh (req, res, next)
+  - Check for validation errors using the validationResult library
+  - Create a new Genre with the req.params.id as _id
+  - Check if (!errors.isEmpty())
+  - if errors exist then re-render the page and pass in the errors
+  - Else Genre.findByIdandUpdate(req.params.id, genre, {}, function(err, thegenre) {
+    if (err) {
+      return next(err)
+    }
+    res.redirect("/catalog/genres")
+  })
+  */
+];
