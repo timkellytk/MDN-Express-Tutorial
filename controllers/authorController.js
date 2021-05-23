@@ -1,18 +1,18 @@
-const Author = require("../models/author");
-const { body, validationResult } = require("express-validator");
-var async = require("async");
-var Book = require("../models/book");
+const Author = require('../models/author');
+const { body, validationResult } = require('express-validator');
+var async = require('async');
+var Book = require('../models/book');
 
 // Display list of all Authors.
 exports.author_list = function (req, res) {
   Author.find({})
-    .sort([["family_name", "ascending"]])
+    .sort([['family_name', 'ascending']])
     .exec(function (err, list_authors) {
       if (err) {
         return next(err);
       }
-      res.render("author_list", {
-        title: "Author List",
+      res.render('author_list', {
+        title: 'Author List',
         author_list: list_authors,
       });
     });
@@ -26,7 +26,7 @@ exports.author_detail = function (req, res, next) {
         Author.findById(req.params.id).exec(callback);
       },
       authors_books: function (callback) {
-        Book.find({ author: req.params.id }, "title summary").exec(callback);
+        Book.find({ author: req.params.id }, 'title summary').exec(callback);
       },
     },
     function (err, results) {
@@ -35,13 +35,13 @@ exports.author_detail = function (req, res, next) {
       } // Error in API usage.
       if (results.author == null) {
         // No results.
-        var err = new Error("Author not found");
+        var err = new Error('Author not found');
         err.status = 404;
         return next(err);
       }
       // Successful, so render.
-      res.render("author_detail", {
-        title: "Author Detail",
+      res.render('author_detail', {
+        title: 'Author Detail',
         author: results.author,
         author_books: results.authors_books,
       });
@@ -51,31 +51,31 @@ exports.author_detail = function (req, res, next) {
 
 // Display Author create form on GET.
 exports.author_create_get = function (req, res) {
-  res.render("author_form", { title: "Create Author" });
+  res.render('author_form', { title: 'Create Author' });
 };
 
 // Handle Author create on POST.
 exports.author_create_post = [
   // Validate and sanitize fields.
-  body("first_name")
+  body('first_name')
     .trim()
     .isLength({ min: 1 })
     .escape()
-    .withMessage("First name must be specified.")
+    .withMessage('First name must be specified.')
     .isAlphanumeric()
-    .withMessage("First name has non-alphanumeric characters."),
-  body("family_name")
+    .withMessage('First name has non-alphanumeric characters.'),
+  body('family_name')
     .trim()
     .isLength({ min: 1 })
     .escape()
-    .withMessage("Family name must be specified.")
+    .withMessage('Family name must be specified.')
     .isAlphanumeric()
-    .withMessage("Family name has non-alphanumeric characters."),
-  body("date_of_birth", "Invalid date of birth")
+    .withMessage('Family name has non-alphanumeric characters.'),
+  body('date_of_birth', 'Invalid date of birth')
     .optional({ checkFalsy: true })
     .isISO8601()
     .toDate(),
-  body("date_of_death", "Invalid date of death")
+  body('date_of_death', 'Invalid date of death')
     .optional({ checkFalsy: true })
     .isISO8601()
     .toDate(),
@@ -87,8 +87,8 @@ exports.author_create_post = [
 
     if (!errors.isEmpty()) {
       // There are errors. Render form again with sanitized values/errors messages.
-      res.render("author_form", {
-        title: "Create Author",
+      res.render('author_form', {
+        title: 'Create Author',
         author: req.body,
         errors: errors.array(),
       });
@@ -131,11 +131,11 @@ exports.author_delete_get = function (req, res, next) {
       }
       if (results.author == null) {
         // No results.
-        res.redirect("/catalog/authors");
+        res.redirect('/catalog/authors');
       }
       // Successful, so render.
-      res.render("author_delete", {
-        title: "Delete Author",
+      res.render('author_delete', {
+        title: 'Delete Author',
         author: results.author,
         author_books: results.authors_books,
       });
@@ -161,8 +161,8 @@ exports.author_delete_post = function (req, res, next) {
       // Success
       if (results.authors_books.length > 0) {
         // Author has books. Render in same way as for GET route.
-        res.render("author_delete", {
-          title: "Delete Author",
+        res.render('author_delete', {
+          title: 'Delete Author',
           author: results.author,
           author_books: results.authors_books,
         });
@@ -174,7 +174,7 @@ exports.author_delete_post = function (req, res, next) {
             return next(err);
           }
           // Success - go to author list
-          res.redirect("/catalog/authors");
+          res.redirect('/catalog/authors');
         });
       }
     }
@@ -189,12 +189,12 @@ exports.author_update_get = function (req, res, next) {
     }
 
     if (author === null) {
-      res.redirect("/catalog/authors");
+      res.redirect('/catalog/authors');
       return;
     }
 
-    res.render("author_form", {
-      title: "Update Author",
+    res.render('author_form', {
+      title: 'Update Author',
       author: author,
     });
   });
@@ -202,24 +202,24 @@ exports.author_update_get = function (req, res, next) {
 
 // Handle Author update on POST.
 exports.author_update_post = [
-  body("first_name")
+  body('first_name')
     .trim()
     .isLength({ min: 1 })
     .escape()
-    .withMessage("First name must be specified")
+    .withMessage('First name must be specified')
     .isAlphanumeric()
-    .withMessage("First name has non-alphanumeric characters"),
-  body("family_name")
+    .withMessage('First name has non-alphanumeric characters'),
+  body('family_name')
     .trim()
     .isLength({ min: 1 })
     .escape()
-    .withMessage("Family name must be specified")
-    .withMessage("Family name has non-alphanumeric characters."),
-  body("date_of_birth", "Invalid date of birth")
+    .withMessage('Family name must be specified')
+    .withMessage('Family name has non-alphanumeric characters.'),
+  body('date_of_birth', 'Invalid date of birth')
     .optional({ checkFalsy: true })
     .isISO8601()
     .toDate(),
-  body("date_of_death", "Invalid date of death")
+  body('date_of_death', 'Invalid date of death')
     .optional({ checkFalsy: true })
     .isISO8601()
     .toDate(),
@@ -236,8 +236,8 @@ exports.author_update_post = [
     });
 
     if (!errors.isEmpty()) {
-      res.render("author_form", {
-        title: "Update Author",
+      res.render('author_form', {
+        title: 'Update Author',
         author: author,
         errors: errors.array(),
       });
